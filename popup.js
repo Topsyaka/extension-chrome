@@ -6,9 +6,10 @@ class App {
   constructor(tabUrl) {
     this.tabUrl = tabUrl;
     this.action = '';
+    this.url = 'http://127.0.0.1:3001';
     this.input = document.getElementById('idField');
-    this.url = document.getElementById('url');
-    chrome.storage.sync.get('url', data => this.url.value = data['url'] || '');
+    this.errorContainer = document.getElementById('errorContainer');
+    this.form = document.forms['submit-form'];
     this.init();
   }
 
@@ -19,14 +20,17 @@ class App {
   }
 
   _addEventListeners() {
-    document.forms['submit-form'].addEventListener('submit', event => {
+    this.form.addEventListener('submit', event => {
       event.preventDefault();
     });
     document.querySelector('.btn-container').addEventListener('click', event => {
       this.action = event.target.name;
-      chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
-        chrome.tabs.sendMessage(tabs[0].id, { greeting: "hello" });
-      });
+      console.log(this.action, this.form.checkValidity());
+      if (this.form.checkValidity()) {
+        chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
+          chrome.tabs.sendMessage(tabs[0].id, { greeting: "hello" });
+        });
+      }
     });
     this.input.addEventListener('change', (event) => {
       const id = event.target.value;
@@ -36,44 +40,50 @@ class App {
 
   _setMessageListener() {
     chrome.runtime.onMessage.addListener(event => {
+      this._resetError();
       const data = {
         id: this.input.value,
         url: this.tabUrl,
-        html: event.html,
-        action: this.action
+        html: event.html
       };
-
-      if (this.url.value) {
-        chrome.storage.sync.set({ url: this.url.value });
-        fetch(this.url.value, {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(data)
-        })
-        .then(data => data.json())
-        .then((data) => this._mapDataToTemplate(data))
-        .catch(err => {
-  
-        });
-      }
+      console.log(`${this.url}${this.action}`);
+      fetch(`${this.url}${this.route}`, {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(data => data.json())
+      .then((data) => this._mapDataToTemplate(data))
+      .catch(err => this._errorHandler(err));
     });
   }
 
   _mapDataToTemplate(data) {
     if (data) {
-      console.log(typeof data)
       const innerData = (typeof data === 'string') ? JSON.parse(data) : data;
       document.querySelector('.content-description').innerHTML = `
-        <p class="content-description__generated">Description: ${innerData.generated_description}</p>
-        <p class="content-description__indian">Indian description: ${innerData.indian_description}</p>
+        <p class="content-description__text">
+          <strong>Description:</strong>
+          ${innerData.generated_description}
+        </p>
+        <p class="content-description__text">
+          <strong>Indian description:</strong> 
+          ${innerData.indian_description}
+        </p>
       `;
-      console.log(this);
       chrome.storage.sync.set({ [`${this.tabUrl}-content`]: JSON.stringify(innerData) });
     }
-    
+  }
+
+  _errorHandler(err) {
+    this.errorContainer.innerHTML = 'Something went wrong, please try again.';
+  }
+
+  _resetError() {
+    this.errorContainer.innerHTML = '';
   }
 
   _storageWorker() {
@@ -84,6 +94,5 @@ class App {
       console.log(data);
       this._mapDataToTemplate(data[`${this.tabUrl}-content`]);
     });
-
   }
 }

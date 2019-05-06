@@ -26,9 +26,8 @@
   },
   "content_scripts": [
     {
-      "matches": ["https://*/*"],
-      "js": ["contentScript.js"],
-      "css": ["contentStyles.css"]
+      "matches": ["https://*/*", "http://*/*"],
+      "js": ["contentScript.js"]
     }
   ],
   "manifest_version": 2

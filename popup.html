@@ -3,6 +3,7 @@
 
 <head>
   <link rel="stylesheet" type="text/css" href="popup.css">
+  <link href="https://fonts.googleapis.com/css?family=Open+Sans:400,600,700" rel="stylesheet">
 </head>
 
 <body>
@@ -12,13 +13,10 @@
     </section>
     <form name="submit-form">
       <div class="group">
-        <label for="url">URL:</label>
-        <input type="text" placeholder="Enter url" id="url" required>
-      </div>
-      <div class="group">
         <label for="url">ID:</label>
         <input type="text" placeholder="Enter id" id="idField" required>
       </div>
+      <p id="errorContainer" class="error-message"></p>
       <div class="btn-container">
         <button class="btn" name='apply'>Apply</button>
         <button class="btn" name='send'>Send</button>
