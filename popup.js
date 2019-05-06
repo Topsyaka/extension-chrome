@@ -6,7 +6,7 @@ class App {
   constructor(tabUrl) {
     this.tabUrl = tabUrl;
     this.action = '';
-    this.url = 'http://127.0.0.1:3001';
+    this.url = 'http://';
     this.input = document.getElementById('idField');
     this.errorContainer = document.getElementById('errorContainer');
     this.form = document.forms['submit-form'];
