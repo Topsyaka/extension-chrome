@@ -6,7 +6,7 @@ class App {
   constructor(tabUrl) {
     this.tabUrl = tabUrl;
     this.action = '';
-    this.url = 'http://';
+    this.url = 'http://127.0.0.1:3001/';
     this.input = document.getElementById('idField');
     this.errorContainer = document.getElementById('errorContainer');
     this.form = document.forms['submit-form'];
@@ -25,7 +25,6 @@ class App {
     });
     document.querySelector('.btn-container').addEventListener('click', event => {
       this.action = event.target.name;
-      console.log(this.action, this.form.checkValidity());
       if (this.form.checkValidity()) {
         chrome.tabs.query({ active: true, currentWindow: true }, tabs => {
           chrome.tabs.sendMessage(tabs[0].id, { greeting: "hello" });
@@ -46,8 +45,7 @@ class App {
         url: this.tabUrl,
         html: event.html
       };
-      console.log(`${this.url}${this.action}`);
-      fetch(`${this.url}${this.route}`, {
+      fetch(`${this.url}${this.action}`, {
         method: 'POST',
         headers: {
           'Accept': 'application/json',
@@ -91,7 +89,6 @@ class App {
       this.input.value = data[`${this.tabUrl}-id`] || '';
     });
     chrome.storage.sync.get(`${this.tabUrl}-content`, data => {
-      console.log(data);
       this._mapDataToTemplate(data[`${this.tabUrl}-content`]);
     });
   }
