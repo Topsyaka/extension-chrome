@@ -62,17 +62,24 @@ class App {
   _mapDataToTemplate(data) {
     if (data) {
       const innerData = (typeof data === 'string') ? JSON.parse(data) : data;
+      if (innerData.generated_description) {
+        document.querySelector('.content-description').innerHTML = `
+          <p class="content-description__text">
+            <strong>Description:</strong>
+            ${innerData.generated_description}
+          </p>
+          <p class="content-description__text">
+            <strong>Indian description:</strong> 
+            ${innerData.indian_description}
+          </p>
+        `;
+        chrome.storage.sync.set({ [`${this.tabUrl}-content`]: JSON.stringify(innerData) });
+        return;
+      }
       document.querySelector('.content-description').innerHTML = `
-        <p class="content-description__text">
-          <strong>Description:</strong>
-          ${innerData.generated_description}
-        </p>
-        <p class="content-description__text">
-          <strong>Indian description:</strong> 
-          ${innerData.indian_description}
-        </p>
-      `;
-      chrome.storage.sync.set({ [`${this.tabUrl}-content`]: JSON.stringify(innerData) });
+        <p class="content-description_success">
+          Successfully saved to database
+        </p>`;
     }
   }
 
