@@ -76,7 +76,7 @@ class App {
         chrome.storage.sync.set({ [`${this.tabUrl}-content`]: JSON.stringify(innerData) });
         return;
       }
-      document.querySelector('.content-description').innerHTML = `
+      document.querySelector('.content-description').innerHTML += `
         <p class="content-description_success">
           Successfully saved to database
         </p>`;
