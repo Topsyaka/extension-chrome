@@ -6,7 +6,7 @@ class App {
   constructor(tabUrl) {
     this.tabUrl = tabUrl;
     this.action = '';
-    this.url = 'http://127.0.0.1:3001/';
+    this.url = 'http://52.191.130.125:5000/';
     this.input = document.getElementById('idField');
     this.errorContainer = document.getElementById('errorContainer');
     this.form = document.forms['submit-form'];
@@ -53,7 +53,15 @@ class App {
         },
         body: JSON.stringify(data)
       })
-      .then(data => data.json())
+      .then(this._handleErrors)
+      .then(data => {
+        const contentType = data.headers.get("content-type");
+        
+        if (contentType && contentType.indexOf("application/json") !== -1) {
+          return data.json();
+        } else {
+          return true;
+        }})
       .then((data) => this._mapDataToTemplate(data))
       .catch(err => this._errorHandler(err));
     });
@@ -76,15 +84,25 @@ class App {
         chrome.storage.sync.set({ [`${this.tabUrl}-content`]: JSON.stringify(innerData) });
         return;
       }
-      document.querySelector('.content-description').innerHTML += `
-        <p class="content-description_success">
-          Successfully saved to database
-        </p>`;
+      if (!document.querySelector('.content-description_success')) {
+        document.querySelector('.content-description').innerHTML += `
+          <p class="content-description_success">
+            Successfully saved to database
+          </p>`;
+      }
     }
   }
 
   _errorHandler(err) {
+    console.log(err);
     this.errorContainer.innerHTML = 'Something went wrong, please try again.';
+  }
+
+  _handleErrors(response) {
+    if (!response.ok) {
+        throw Error(response.statusText);
+    }
+    return response;
   }
 
   _resetError() {
