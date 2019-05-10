@@ -95,7 +95,7 @@ class App {
 
   _errorHandler(err) {
     this.errorMessage = '';
-    if (err.message == 400) {
+    if (err.message === '400') {
       this.errorMessage = 'Incorrect ID';
     };
     this.errorContainer.innerHTML = this.errorMessage ? this.errorMessage : 'Something went wrong, please try again.';
@@ -103,7 +103,7 @@ class App {
 
   _handleErrors(response) {
     if (!response.ok) {
-      if (response.status === 404) {
+      if (response.status === 400) {
         throw Error(response.status);
       } 
       throw Error(response.statusText);
