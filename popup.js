@@ -6,6 +6,7 @@ class App {
   constructor(tabUrl) {
     this.tabUrl = tabUrl;
     this.action = '';
+    this.errorMessage = '';
     this.url = 'http://52.191.130.125:5000/';
     this.input = document.getElementById('idField');
     this.errorContainer = document.getElementById('errorContainer');
@@ -56,7 +57,6 @@ class App {
       .then(this._handleErrors)
       .then(data => {
         const contentType = data.headers.get("content-type");
-        
         if (contentType && contentType.indexOf("application/json") !== -1) {
           return data.json();
         } else {
@@ -94,13 +94,19 @@ class App {
   }
 
   _errorHandler(err) {
-    console.log(err);
-    this.errorContainer.innerHTML = 'Something went wrong, please try again.';
+    this.errorMessage = '';
+    if (err.message == 400) {
+      this.errorMessage = 'Incorrect ID';
+    };
+    this.errorContainer.innerHTML = this.errorMessage ? this.errorMessage : 'Something went wrong, please try again.';
   }
 
   _handleErrors(response) {
     if (!response.ok) {
-        throw Error(response.statusText);
+      if (response.status === 404) {
+        throw Error(response.status);
+      } 
+      throw Error(response.statusText);
     }
     return response;
   }
